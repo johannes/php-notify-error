@@ -130,7 +130,7 @@ zend_module_entry notifyerror_module_entry = {
 	NULL,
 	PHP_MINFO(notifyerror),
 #if ZEND_MODULE_API_NO >= 20010901
-	"0.1", /* Replace with version number for your extension */
+	NOTIFYERROR_VERSION,
 #endif
 	STANDARD_MODULE_PROPERTIES
 };

@@ -22,6 +22,8 @@
 extern zend_module_entry notifyerror_module_entry;
 #define phpext_notifyerror_ptr &notifyerror_module_entry
 
+#define NOTIFYERROR_VERSION "1.0.0-dev"
+
 #endif	/* PHP_NOTIFYERROR_H */
 
 
