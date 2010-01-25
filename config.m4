@@ -26,6 +26,16 @@ if test "$PHP_NOTIFYERROR" != "no"; then
 
   PHP_ADD_INCLUDE($NOTIFYERROR_DIR/include)
 
+  dnl This is aquitebad assumption, better use pkg-config:
+  PHP_ADD_INCLUDE($NOTIFYERROR_DIR/include/glib-2.0)
+  PHP_ADD_INCLUDE(/usr/lib/glib-2.0/include)
+  PHP_ADD_INCLUDE(/usr/include/gtk-2.0)
+  PHP_ADD_INCLUDE(/usr/include/cairo)
+  PHP_ADD_INCLUDE(/usr/include/dbus-1.0)
+  PHP_ADD_INCLUDE(/usr/include/atk-1.0)
+  PHP_ADD_INCLUDE(/usr/include/pango-1.0)
+  PHP_ADD_INCLUDE(/usr/lib/gtk-2.0/include/)
+
   LIBNAME=notify
   LIBSYMBOL=notify_init 
 

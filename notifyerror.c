@@ -25,10 +25,66 @@
 #include "ext/standard/info.h"
 #include "php_notifyerror.h"
 
+#include "libnotify/notify.h"
+
+static void (*orig_error_cb)(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args);
+
 /* If you declare any globals in php_notifyerror.h uncomment this:
 ZEND_DECLARE_MODULE_GLOBALS(notifyerror)
 */
 
+static void notifyerror_error_cb(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args)
+{
+	char *buffer, *error_message, *header;
+
+	vspprintf(&buffer, PG(log_errors_max_len), format, args);
+	spprintf(&error_message, 0, "%s\nin %s on line %d", buffer, error_filename, error_lineno);
+	efree(buffer);
+
+	switch (type) {
+		case E_CORE_ERROR:
+		case E_ERROR:
+		case E_COMPILE_ERROR:
+		case E_USER_ERROR:
+			header = "PHP Fatal Error";
+			break;
+		case E_RECOVERABLE_ERROR:
+			header = "PHP Recoverable Fatal Error";
+			break;
+		case E_WARNING:
+		case E_CORE_WARNING:
+		case E_COMPILE_WARNING:
+			header = "PHP Warning";
+			break;
+		case E_PARSE:
+			header = "PHP Parse Error";
+			break;
+		case E_NOTICE:
+		case E_USER_NOTICE:
+			header = "PHP Notice";
+			break;
+		case E_STRICT:
+			header = "PHP Strict Error";
+			break;
+#ifdef E_DEPRECATED
+		case E_DEPRECATED:
+		case E_USER_DEPRECATED:
+			header = "PHP Deprecation";
+			break;
+#endif
+		default:
+			header = "Unknown PHP Error";
+			break;
+	}
+
+	NotifyNotification* not = notify_notification_new(header, error_message, NULL, NULL);
+    notify_notification_show(not, NULL);
+    g_object_unref(not);
+
+	efree(error_message);
+
+	orig_error_cb(type, error_filename, error_lineno, format, args);
+}
 
 /* {{{ notifyerror_module_entry
  */
@@ -40,8 +96,8 @@ zend_module_entry notifyerror_module_entry = {
 	NULL,
 	PHP_MINIT(notifyerror),
 	PHP_MSHUTDOWN(notifyerror),
-	PHP_RINIT(notifyerror),		/* Replace with NULL if there's nothing to do at request start */
-	PHP_RSHUTDOWN(notifyerror),	/* Replace with NULL if there's nothing to do at request end */
+	NULL,
+	NULL,
 	PHP_MINFO(notifyerror),
 #if ZEND_MODULE_API_NO >= 20010901
 	"0.1", /* Replace with version number for your extension */
@@ -82,6 +138,10 @@ PHP_MINIT_FUNCTION(notifyerror)
 	/* If you have INI entries, uncomment these lines 
 	REGISTER_INI_ENTRIES();
 	*/
+	notify_init("php " PHP_VERSION);
+	orig_error_cb = zend_error_cb;
+	zend_error_cb = notifyerror_error_cb;
+
 	return SUCCESS;
 }
 /* }}} */
@@ -93,24 +153,9 @@ PHP_MSHUTDOWN_FUNCTION(notifyerror)
 	/* uncomment this line if you have INI entries
 	UNREGISTER_INI_ENTRIES();
 	*/
-	return SUCCESS;
-}
-/* }}} */
 
-/* Remove if there's nothing to do at request start */
-/* {{{ PHP_RINIT_FUNCTION
- */
-PHP_RINIT_FUNCTION(notifyerror)
-{
-	return SUCCESS;
-}
-/* }}} */
+	notify_uninit();
 
-/* Remove if there's nothing to do at request end */
-/* {{{ PHP_RSHUTDOWN_FUNCTION
- */
-PHP_RSHUTDOWN_FUNCTION(notifyerror)
-{
 	return SUCCESS;
 }
 /* }}} */
