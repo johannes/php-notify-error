@@ -16,46 +16,11 @@
   +----------------------------------------------------------------------+
 */
 
-/* $Id: header 252479 2008-02-07 19:39:50Z iliaa $ */
-
 #ifndef PHP_NOTIFYERROR_H
 #define PHP_NOTIFYERROR_H
 
 extern zend_module_entry notifyerror_module_entry;
 #define phpext_notifyerror_ptr &notifyerror_module_entry
-
-#ifdef PHP_WIN32
-#	define PHP_NOTIFYERROR_API __declspec(dllexport)
-#elif defined(__GNUC__) && __GNUC__ >= 4
-#	define PHP_NOTIFYERROR_API __attribute__ ((visibility("default")))
-#else
-#	define PHP_NOTIFYERROR_API
-#endif
-
-#ifdef ZTS
-#include "TSRM.h"
-#endif
-
-PHP_MINIT_FUNCTION(notifyerror);
-PHP_MSHUTDOWN_FUNCTION(notifyerror);
-PHP_RINIT_FUNCTION(notifyerror);
-PHP_RSHUTDOWN_FUNCTION(notifyerror);
-PHP_MINFO_FUNCTION(notifyerror);
-
-
-/* 
-
-ZEND_BEGIN_MODULE_GLOBALS(notifyerror)
-	long  global_value;
-	char *global_string;
-ZEND_END_MODULE_GLOBALS(notifyerror)
-*/
-
-#ifdef ZTS
-#define NOTIFYERROR_G(v) TSRMG(notifyerror_globals_id, zend_notifyerror_globals *, v)
-#else
-#define NOTIFYERROR_G(v) (notifyerror_globals.v)
-#endif
 
 #endif	/* PHP_NOTIFYERROR_H */
 

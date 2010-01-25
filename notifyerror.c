@@ -29,10 +29,6 @@
 
 static void (*orig_error_cb)(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args);
 
-/* If you declare any globals in php_notifyerror.h uncomment this:
-ZEND_DECLARE_MODULE_GLOBALS(notifyerror)
-*/
-
 static void notifyerror_error_cb(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args)
 {
 	char *buffer, *error_message, *header;
@@ -83,8 +79,41 @@ static void notifyerror_error_cb(int type, const char *error_filename, const uin
 
 	efree(error_message);
 
+
 	orig_error_cb(type, error_filename, error_lineno, format, args);
 }
+
+/* {{{ PHP_MINIT_FUNCTION
+ */
+PHP_MINIT_FUNCTION(notifyerror)
+{
+	notify_init("php " PHP_VERSION);
+	orig_error_cb = zend_error_cb;
+	zend_error_cb = notifyerror_error_cb;
+
+	return SUCCESS;
+}
+/* }}} */
+
+/* {{{ PHP_MSHUTDOWN_FUNCTION
+ */
+PHP_MSHUTDOWN_FUNCTION(notifyerror)
+{
+	notify_uninit();
+
+	return SUCCESS;
+}
+/* }}} */
+
+/* {{{ PHP_MINFO_FUNCTION
+ */
+PHP_MINFO_FUNCTION(notifyerror)
+{
+	php_info_print_table_start();
+	php_info_print_table_header(2, "notifyerror support", "enabled");
+	php_info_print_table_end();
+}
+/* }}} */
 
 /* {{{ notifyerror_module_entry
  */
@@ -109,70 +138,6 @@ zend_module_entry notifyerror_module_entry = {
 #ifdef COMPILE_DL_NOTIFYERROR
 ZEND_GET_MODULE(notifyerror)
 #endif
-
-/* {{{ PHP_INI
- */
-/* Remove comments and fill if you need to have entries in php.ini
-PHP_INI_BEGIN()
-    STD_PHP_INI_ENTRY("notifyerror.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_notifyerror_globals, notifyerror_globals)
-    STD_PHP_INI_ENTRY("notifyerror.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_notifyerror_globals, notifyerror_globals)
-PHP_INI_END()
-*/
-/* }}} */
-
-/* {{{ php_notifyerror_init_globals
- */
-/* Uncomment this function if you have INI entries
-static void php_notifyerror_init_globals(zend_notifyerror_globals *notifyerror_globals)
-{
-	notifyerror_globals->global_value = 0;
-	notifyerror_globals->global_string = NULL;
-}
-*/
-/* }}} */
-
-/* {{{ PHP_MINIT_FUNCTION
- */
-PHP_MINIT_FUNCTION(notifyerror)
-{
-	/* If you have INI entries, uncomment these lines 
-	REGISTER_INI_ENTRIES();
-	*/
-	notify_init("php " PHP_VERSION);
-	orig_error_cb = zend_error_cb;
-	zend_error_cb = notifyerror_error_cb;
-
-	return SUCCESS;
-}
-/* }}} */
-
-/* {{{ PHP_MSHUTDOWN_FUNCTION
- */
-PHP_MSHUTDOWN_FUNCTION(notifyerror)
-{
-	/* uncomment this line if you have INI entries
-	UNREGISTER_INI_ENTRIES();
-	*/
-
-	notify_uninit();
-
-	return SUCCESS;
-}
-/* }}} */
-
-/* {{{ PHP_MINFO_FUNCTION
- */
-PHP_MINFO_FUNCTION(notifyerror)
-{
-	php_info_print_table_start();
-	php_info_print_table_header(2, "notifyerror support", "enabled");
-	php_info_print_table_end();
-
-	/* Remove comments if you have entries in php.ini
-	DISPLAY_INI_ENTRIES();
-	*/
-}
-/* }}} */
 
 /*
  * Local variables:
