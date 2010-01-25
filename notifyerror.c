@@ -31,8 +31,10 @@ static void (*orig_error_cb)(int type, const char *error_filename, const uint er
 
 static void notifyerror_error_cb(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args) /* {{{ */
 {
+	va_list args_cp;
 	char *buffer, *error_message, *header;
 
+	va_copy(args_cp, args);
 	vspprintf(&buffer, PG(log_errors_max_len), format, args);
 	spprintf(&error_message, 0, "%s\nin %s on line %d", buffer, error_filename, error_lineno);
 	efree(buffer);
