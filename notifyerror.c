@@ -1,8 +1,8 @@
 /*
   +----------------------------------------------------------------------+
-  | PHP Version 5                                                        |
+  | Notify Error                                                         |
   +----------------------------------------------------------------------+
-  | Copyright (c) 1997-2008 The PHP Group                                |
+  | Copyright (c) 2010 Johannes Schlüter                                 |
   +----------------------------------------------------------------------+
   | This source file is subject to version 3.01 of the PHP license,      |
   | that is bundled with this package in the file LICENSE, and is        |
@@ -12,11 +12,9 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Author:                                                              |
+  | Author: Johannes Schlüter <johannes@php.net>                         |
   +----------------------------------------------------------------------+
 */
-
-/* $Id: header 252479 2008-02-07 19:39:50Z iliaa $ */
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -31,18 +29,6 @@
 ZEND_DECLARE_MODULE_GLOBALS(notifyerror)
 */
 
-/* True global resources - no need for thread safety here */
-static int le_notifyerror;
-
-/* {{{ notifyerror_functions[]
- *
- * Every user visible function must have an entry in notifyerror_functions[].
- */
-const zend_function_entry notifyerror_functions[] = {
-	PHP_FE(confirm_notifyerror_compiled,	NULL)		/* For testing, remove later. */
-	{NULL, NULL, NULL}	/* Must be the last line in notifyerror_functions[] */
-};
-/* }}} */
 
 /* {{{ notifyerror_module_entry
  */
@@ -51,7 +37,7 @@ zend_module_entry notifyerror_module_entry = {
 	STANDARD_MODULE_HEADER,
 #endif
 	"notifyerror",
-	notifyerror_functions,
+	NULL,
 	PHP_MINIT(notifyerror),
 	PHP_MSHUTDOWN(notifyerror),
 	PHP_RINIT(notifyerror),		/* Replace with NULL if there's nothing to do at request start */
@@ -142,35 +128,6 @@ PHP_MINFO_FUNCTION(notifyerror)
 	*/
 }
 /* }}} */
-
-
-/* Remove the following function when you have succesfully modified config.m4
-   so that your module can be compiled into PHP, it exists only for testing
-   purposes. */
-
-/* Every user-visible function in PHP should document itself in the source */
-/* {{{ proto string confirm_notifyerror_compiled(string arg)
-   Return a string to confirm that the module is compiled in */
-PHP_FUNCTION(confirm_notifyerror_compiled)
-{
-	char *arg = NULL;
-	int arg_len, len;
-	char *strg;
-
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &arg, &arg_len) == FAILURE) {
-		return;
-	}
-
-	len = spprintf(&strg, 0, "Congratulations! You have successfully modified ext/%.78s/config.m4. Module %.78s is now compiled into PHP.", "notifyerror", arg);
-	RETURN_STRINGL(strg, len, 0);
-}
-/* }}} */
-/* The previous line is meant for vim and emacs, so it can correctly fold and 
-   unfold functions in source code. See the corresponding marks just before 
-   function definition, where the functions purpose is also documented. Please 
-   follow this convention for the convenience of others editing your code.
-*/
-
 
 /*
  * Local variables:
