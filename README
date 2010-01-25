@@ -1,0 +1,9 @@
+A simple PHP extension registering an error handler using libnotify. By this
+error messages create small notification popups on a libnotify-enabled
+desktop.
+
+See http://php.net/install.pecl for generic installation instructions, this
+packages expects some Gtk/Glib/... components in standard locations (might be 
+fixed one day).
+
+Very experimental!
