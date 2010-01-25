@@ -29,7 +29,7 @@
 
 static void (*orig_error_cb)(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args);
 
-static void notifyerror_error_cb(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args)
+static void notifyerror_error_cb(int type, const char *error_filename, const uint error_lineno, const char *format, va_list args) /* {{{ */
 {
 	char *buffer, *error_message, *header;
 
@@ -82,6 +82,7 @@ static void notifyerror_error_cb(int type, const char *error_filename, const uin
 
 	orig_error_cb(type, error_filename, error_lineno, format, args);
 }
+/* }}} */
 
 /* {{{ PHP_MINIT_FUNCTION
  */
